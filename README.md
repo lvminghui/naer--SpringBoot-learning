@@ -26,12 +26,10 @@ naer基于Spring Boot2.X的后台权限管理系统，项目采用 SpringBoot+ T
 4. ajax
 
 ### 项目效果图
-
-
+![Image text](https://github.com/lvminghui/naer--SpringBoot-learning/blob/master/image/%E7%A4%BA%E4%BE%8B1.PNG)
 
 ### 分配权限页面效果
-
-
+  ![Image text](https://github.com/lvminghui/naer--SpringBoot-learning/blob/master/image/%E7%A4%BA%E4%BE%8B2%20.PNG)
 
 #### 内置功能
 1. 用户管理：用户查询、添加用户、修改用户、用户角色设置、删除用户；
