@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxbang.friday.dao.RoleDao">
+
+	<insert id="saveRole" parameterType="com.sxbang.friday.model.SysRole" flushCache="true"  useGeneratedKeys="true" keyProperty="id">
+		insert into sys_role(name, description, createTime, updateTime)
+		values
+		(#{name}, #{description}, now(), now())
+	</insert>
+
+	<update id="update">
+		update sys_role t
+		<set>
+			<if test="name != null">
+				`name` = #{name},
+			</if>
+			<if test="description != null">
+				description = #{description},
+			</if>
+
+			updateTime = #{updateTime}
+		</set>
+		where t.id = #{id}
+	</update>
+</mapper>

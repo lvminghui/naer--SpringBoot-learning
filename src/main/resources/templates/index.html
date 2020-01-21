@@ -1,0 +1,224 @@
+<!doctype html>
+<html class="x-admin-sm" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>纳尔的权限管理系统</title>
+        <header th:replace="header::html"></header>
+    </head>
+    <body class="index">
+        <!-- 顶部开始 -->
+        <div class="container">
+            <div class="logo"> <a href="index.html">naer</a></div>
+            <div class="left_open">  <a><i title="展开左侧栏" class="iconfont">&#xe699;</i></a> </div>
+            <ul class="layui-nav left fast-add" lay-filter="">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">+新增</a>
+                    <dl class="layui-nav-child">
+                        <!-- 二级菜单 -->
+                        <dd>
+                            <a onclick="xadmin.open('最大化','http://www.baidu.com','','',true)">
+                                <i class="iconfont">&#xe6a2;</i>弹出最大化</a></dd>
+                        <dd>
+                            <a onclick="xadmin.open('弹出自动宽高','http://www.baidu.com')">
+                                <i class="iconfont">&#xe6a8;</i>弹出自动宽高</a></dd>
+                        <dd>
+                            <a onclick="xadmin.open('弹出指定宽高','http://www.baidu.com',500,300)">
+                                <i class="iconfont">&#xe6a8;</i>弹出指定宽高</a></dd>
+                        <dd>
+                            <a onclick="xadmin.add_tab('在tab打开','member-list.html')">
+                                <i class="iconfont">&#xe6b8;</i>在tab打开</a></dd>
+                        <dd>
+                            <a onclick="xadmin.add_tab('在tab打开刷新','member-del.html',true)">
+                                <i class="iconfont">&#xe6b8;</i>在tab打开刷新</a></dd>
+                    </dl>
+                </li>
+            </ul>
+            <ul class="layui-nav right" lay-filter="">
+                <li class="layui-nav-item">
+                    <a href="javascript:;" id="show-nickName">admin</a>
+                    <dl class="layui-nav-child">
+                        <!-- 二级菜单 -->
+                        <dd>
+                            <a onclick="xadmin.open('个人信息','http://www.baidu.com')">个人信息</a></dd>
+                        <dd>
+                            <a onclick="xadmin.open('切换帐号','http://www.baidu.com')">切换帐号</a></dd>
+                        <dd>
+                            <a href="/logout">退出</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item to-index">
+                    <a href="/">前台首页</a></li>
+            </ul>
+        </div>
+        <!-- 顶部结束 -->
+        <!-- 中部开始 -->
+        <!-- 左侧菜单开始 -->
+        <div class="left-nav">
+            <div id="side-nav">
+                <ul id="nav" >
+
+                </ul>
+            </div>
+        </div>
+        <!-- 左侧菜单结束 -->
+        <!-- 右侧主体开始 -->
+        <div class="page-content">
+            <div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">
+                <ul class="layui-tab-title">
+                    <li class="home">
+                        <i class="layui-icon">&#xe68e;</i>我的桌面</li></ul>
+                <div class="layui-unselect layui-form-select layui-form-selected" id="tab_right">
+                    <dl>
+                        <dd data-type="this">关闭当前</dd>
+                        <dd data-type="other">关闭其它</dd>
+                        <dd data-type="all">关闭全部</dd></dl>
+                </div>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <iframe src='/api/getPage?pageName=user/user-list' frameborder="0" scrolling="yes" class="x-iframe"></iframe>
+                    </div>
+                </div>
+                <div id="tab_show"></div>
+            </div>
+        </div>
+        <div class="page-content-bg"></div>
+        <!--<style id="theme_style"></style>-->
+
+        <!-- 右侧主体结束 -->
+        <!-- 中部结束 -->
+        <!--<script type="text/javascript" src="my/js/index.js"></script>-->
+        <div class="footer">
+            <div class="copyright">Copyright ©2019 naer v1.0 All Rights Reserved</div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                //显示用户名
+                var nickName = localStorage.nickName;
+                $("#show-nickName").text((nickName != null && nickName != undefined) ? nickName : "---");
+
+                function Menu(eleId, userId) {
+                    this.eleId = eleId || "nav";
+                    this.userId = userId || "0";
+                    this.permission = [];
+                    this.menuItemRight = '<i class="iconfont nav_right">&#xe697;</i>';
+                    this.menuItemTemplate = ""
+                        +'<li>'
+                        + '<a onclick="xadmin.add_tab(\'{{menu_title}} \',\' {{menu_href}} \')">'
+                        + '		<i class="iconfont">{{men_icon}}</i>'
+                        + '		<cite>{{menu_name}}</cite>'
+                        + '		{{menu_right}}'
+                        + '	</a>'
+                        + '	{{sub_menu}}'
+                        +'</li>';
+                    this.menuParentTemplate = ""
+                        +'<li>'
+                        + '<a >'
+                        + '		<i class="iconfont">{{men_icon}}</i>'
+                        + '		<cite>{{menu_name}}</cite>'
+                        + '		{{menu_right}}'
+                        + '	</a>'
+                        + '	{{sub_menu}}'
+                        +'</li>';
+                    this.subMenu = '<ul class="sub-menu">'
+                        + '	{{sub_menu_list}}'
+                        + '</ul>';
+                }
+
+                Menu.prototype = {
+                    init: function (eleId, userId) {
+                        eleId = eleId || this.eleId;
+                        userId = userId || this.userId;
+                        var _this = this;
+                        _this.getMenuData(userId).then(function (res) {
+                            var htmlStr = _this.generateMenu('',_this.permission);
+                            $("#" + eleId).html(htmlStr);
+                        });
+                    },
+                    getMenuData: function (userId) {
+                        var _this = this;
+                        return new Promise(function (resolve, reject) {
+                                $.ajax({
+                                    url: '/permission/menu',
+                                    type: 'GET',
+                                    // dataType: 'jsonp',
+                                    data: {'userId': userId}
+                                }).always(function (res) {//complete()
+                                }).done(function (res) {//Success()
+                                    if (res.code != '200') {
+                                        return;
+                                    }
+
+                                    if(res.data.length == 0){
+                                        $('.left-nav').animate({left: '-221px'}, 100);
+                                        $('.page-content').animate({left: '0px'}, 100);
+                                        $('.page-content-bg').hide();
+                                        $('.container .left_open i').hide()
+                                        return ;
+                                    }
+                                    _this.permission = res.data;
+
+                                    if (resolve && typeof resolve == "function") {
+                                        resolve(res);
+                                    }
+                                }).fail(function (res) {
+                                    if (reject && typeof reject == "function") {
+                                        reject(res);
+                                    }
+                                });
+                            }
+                        );
+                    },
+                    generateMenu: function (eleId,data) {
+                        var htmlStr = "";
+                        var _this = this;
+                        if(data.length == 0){
+                            return ;
+                        }
+                        //var userPermission = localStorage.permission;
+                        var parentList = [];
+                        data.map(function (item, index) {
+                            var isRoot = false;
+                            if (item.parentId == 0) {
+                                isRoot = true;
+                            }
+                            var menuItemStr = item.child.length >0 ? _this.menuParentTemplate:_this.menuItemTemplate;
+                            menuItemStr = menuItemStr.replace(/{{menu_name}}/, item.name);
+                            if (isRoot) {
+                                menuItemStr = menuItemStr.replace(/{{menu_right}}/, _this.menuItemRight);
+                                menuItemStr = menuItemStr.replace(/{{men_icon}}/, "&#xe6b4;");
+                            } else {
+                                menuItemStr = menuItemStr.replace(/{{menu_right}}/, "");
+                                menuItemStr = menuItemStr.replace(/{{men_icon}}/, "&#xe6a7;");
+                            }
+                            var child = "";
+                            if (item.child) {
+                                var childList = _this.generateMenu(eleId,item.child);
+                                if (childList) {
+                                    child = _this.subMenu;
+                                    child = child.replace(/{{sub_menu_list}}/, childList);
+                                    menuItemStr = menuItemStr.replace(/{{menu_title}}/, "");
+                                    menuItemStr = menuItemStr.replace(/{{menu_href}}/, "javascript:;");
+                                } else {
+                                    menuItemStr = menuItemStr.replace(/{{menu_title}}/,item.name);
+                                    menuItemStr = menuItemStr.replace(/{{menu_href}}/, item.href);
+                                }
+                            } else {
+                                menuItemStr = menuItemStr.replace(/{{menu_title}}/, item.name);
+                                menuItemStr = menuItemStr.replace(/{{menu_href}}/, item.href);
+                            }
+                            menuItemStr = menuItemStr.replace(/{{sub_menu}}/, child);
+                            htmlStr += menuItemStr;
+                        });
+                        return htmlStr;
+                    }
+
+                }
+                var userId = localStorage.userId;
+                var menu = new Menu("",userId );
+                menu.init();
+            })
+            ;
+        </script>
+    </body>
+</html>
