@@ -44,7 +44,7 @@ naer是一个基于Spring Boot2.X的后台权限管理系统，项目采用 Spri
 ## 快速部署
 
 1. 克隆源代码并使用Intelij IDEA导入项目代码；
-2. Intelij IDEA中安装Lombok插件，参考：https://jingyan.baidu.com/article/0a52e3f4e53ca1bf63ed725c.html
+2. Intelij IDEA中安装Lombok插件
 3. 将'/resources'目录下的'naer.sql'导入MySQL数据库；
 4. 修改'/resources'目录下的'application.yml'文件中的数据源配置，改为你自己的MySQL环境:
 
